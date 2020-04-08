@@ -14,11 +14,32 @@
 #include "ipc.h"
 
 FILE * fp;
+FILE * pipe_fp;
 local_id l_id;
 
 
 void log_begin(){
     fp = fopen(events_log,"w");
+    pipe_fp = fopen(pipes_log, "w");
+}
+
+/**
+ * Информацию обо всех открытых дескрипторах каналов (чтение / запись)
+ * необходимо вывести в файл pipes.log. Это помогает обнаружить часто встречаемую
+ * ошибку: реализацию топологии «общая шина» вместо полносвязной. Кроме того, следует
+ * не забывать, что неиспользуемые дескрипторы необходимо закрыть.
+ */
+
+void log_fd_r_open(int fd){
+    fprintf(pipe_fp, "fd %d opened for reading\n", fd);
+}
+
+void log_fd_w_open(int fd){
+    fprintf(pipe_fp, "fd %d opened for writing\n", fd);
+}
+
+void log_fd_closed(int fd){
+    fprintf(pipe_fp, "fd %d closed\n", fd);
 }
 
 void log_done(){
@@ -42,6 +63,7 @@ void log_recs(){
 
 void log_end(){
     fclose(fp);
+    fclose(pipe_fp);
 }
 
 

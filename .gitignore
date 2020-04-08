@@ -1,3 +1,5 @@
 .version
 pa1/a.out
 ./.idea
+pa1/pipes.log
+pa1/events.log
