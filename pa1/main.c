@@ -7,16 +7,12 @@
 #include <string.h>
 #include "ipc.h"
 #include <stdlib.h>
+#include <wait.h>
 #include "logging.h"
+#include "helper.h"
 
-#define MAX_PROCESS 10
 
-
-int cp_count;
 local_id l_id;
-int fd_r[MAX_PROCESS][MAX_PROCESS];
-int fd_w[MAX_PROCESS][MAX_PROCESS];
-
 
 int main(int argc, char *argv[]) {
     log_begin();
@@ -90,14 +86,69 @@ int main(int argc, char *argv[]) {
         }
     }
 
+/**
+ * Первая фаза работы дочернего процесса заключается в том, что при запуске он пишет в
+ * лог (все последующие действия также логируются) и отправляет сообщение типа
+ * STARTED всем остальным процессам, включая родительский. Затем процесс дожидается
+ * сообщений STARTED от других дочерних процессов, после чего первая фаза его работы
+ * считается оконченной.
+ */
 
-    if (l_id == 0) {
-        for (int j = 0; j <= cp_count; j++) {
-            printf("%d\n", pids[j]);
-            log_start();
+
+    if(l_id != PARENT_ID){
+        log_start();
+        Message message = {.s_header = {
+                .s_magic = MESSAGE_MAGIC,
+                .s_type = STARTED,
         }
+        };
+        //todo зачем?
+        sprintf(message.s_payload, log_started_fmt, l_id, getpid(), getppid());
+        message.s_header.s_payload_len = strlen(message.s_payload);
+        send_multicast(NULL, &message);
     }
 
+
+    for (int i = 1; i <= cp_count; i++) {
+        Message message;
+        if (i == l_id) {
+            continue;
+        }
+        receive(NULL, i, &message);
+    }
+    log_recs();
+
+
+    if (l_id != PARENT_ID) {
+        log_done();
+        Message message = {
+                .s_header =
+                        {
+                                .s_magic = MESSAGE_MAGIC,
+                                .s_type = DONE,
+                        },
+        };
+        sprintf(message.s_payload, log_done_fmt, l_id);
+        message.s_header.s_payload_len = strlen(message.s_payload);
+        send_multicast(NULL, &message);
+    }
+
+
+    for (int i = 1; i <= l_id; i++) {
+        Message msg;
+        if (i == l_id) {
+            continue;
+        }
+        receive(NULL, i, &msg);
+    }
+    log_recd();
+
+    if (l_id == PARENT_ID) {
+        // Wait for the children to stop
+        for (size_t i = 1; i <= (cp_count + 1); i++) {
+            waitpid(pids[i], NULL, 0);
+        }
+    }
 
     log_end();
     return 0;
