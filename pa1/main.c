@@ -12,11 +12,8 @@
 #include "helper.h"
 
 
-local_id l_id;
 
 int main(int argc, char *argv[]) {
-    log_begin();
-
     //input
     if (argc == 3 && strcmp(argv[1], "-p") == 0) {
         cp_count = atoi(argv[2]);
@@ -25,9 +22,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    log_begin();
+
     for (int in = 0; in <= cp_count; in++) {
         for (int out = 0; out <= cp_count; out++) {
             int fd[2];
+            if( in != out ){
             if (pipe(fd) == 0) {
                 log_fd_r_open(fd[0]);
                 log_fd_w_open(fd[1]);
@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
             } else {
                 fprintf(stderr, "Cannot create pipe\n");
                 return 1;
+            }
             }
         }
     }
@@ -48,9 +49,7 @@ int main(int argc, char *argv[]) {
 
 
     pid_t pids[cp_count];
-    l_id = PARENT_ID;
     pids[PARENT_ID] = getpid();
-    printf("%d\n", pids[0]);
 
     /**При запуске программы родительский процесс осуществляет необходимую
      * подготовку для организации межпроцессного взаимодействия, после чего создает X
@@ -100,12 +99,13 @@ int main(int argc, char *argv[]) {
         Message message = {.s_header = {
                 .s_magic = MESSAGE_MAGIC,
                 .s_type = STARTED,
-        }
+        },
         };
-        //todo зачем?
         sprintf(message.s_payload, log_started_fmt, l_id, getpid(), getppid());
         message.s_header.s_payload_len = strlen(message.s_payload);
-        send_multicast(NULL, &message);
+        if( send_multicast(NULL, &message) == 1 ) {
+            return 1;
+        }
     }
 
 
@@ -114,7 +114,10 @@ int main(int argc, char *argv[]) {
         if (i == l_id) {
             continue;
         }
-        receive(NULL, i, &message);
+
+       if( receive(NULL, i, &message) == 1 ){
+           return 1;
+       }
     }
     log_recs();
 
@@ -130,16 +133,20 @@ int main(int argc, char *argv[]) {
         };
         sprintf(message.s_payload, log_done_fmt, l_id);
         message.s_header.s_payload_len = strlen(message.s_payload);
-        send_multicast(NULL, &message);
+        if( send_multicast(NULL, &message) == 1 ) {
+            return 1;
+        }
     }
 
 
-    for (int i = 1; i <= l_id; i++) {
+    for (int i = 1; i <= cp_count; i++) {
         Message msg;
         if (i == l_id) {
             continue;
         }
-        receive(NULL, i, &msg);
+        if( receive(NULL, i, &msg) == 1 ){
+            return 1;
+        }
     }
     log_recd();
 
@@ -149,7 +156,6 @@ int main(int argc, char *argv[]) {
             waitpid(pids[i], NULL, 0);
         }
     }
-
     log_end();
     return 0;
 }

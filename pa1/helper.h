@@ -9,4 +9,5 @@
 int fd_r[MAX_PROCESS][MAX_PROCESS];
 int fd_w[MAX_PROCESS][MAX_PROCESS];
 int cp_count;
+local_id l_id;
 #endif //PA1_STARTER_CODE_HELPER_H

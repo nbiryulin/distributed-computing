@@ -5,6 +5,7 @@
 
 
 #include "logging.h"
+#include "helper.h"
 
 void log_begin(){
     fp = fopen(events_log,"w");

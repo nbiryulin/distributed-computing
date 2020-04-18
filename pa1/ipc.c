@@ -13,7 +13,6 @@
 static size_t read_by_bytes(size_t fd, void *buf, size_t num_bytes);
 
 int send(void *self, local_id dst, const Message *msg) {
-    //todo maybe change id
     if (write((fd_w[l_id][dst]), &msg->s_header, sizeof(MessageHeader)) == -1) {
         fprintf(stderr, "Cannot send message\n");
         return 1;
@@ -38,28 +37,28 @@ int send_multicast(void *self, const Message *msg) {
 
 int receive(void *self, local_id from, Message *msg) {
     //todo handle errors
-    read_by_bytes(fd_r[from][l_id], &msg->s_header, sizeof(MessageHeader));
+    read_by_bytes(fd_r[from][l_id], &msg->s_header, sizeof(MessageHeader)) ;
     read_by_bytes(fd_r[from][l_id], &msg->s_payload, msg->s_header.s_payload_len);
     return 0;
 }
 
 int receive_any(void *self, Message *msg) {
-    // TODO: Not implemented yet
-    return fprintf(stderr, "Not implemented yet");
+     fprintf(stderr, "Not  used");
+    return 1;
 }
 
-//todo change variables
+
 static size_t read_by_bytes(size_t fd, void *buf, size_t num_bytes) {
-    size_t offset = 0;
-    size_t remaining = num_bytes;
-    while (remaining > 0) {
-        int num_bytes_read = read(fd, ((char *)buf) + offset, remaining);
+    size_t already = 0;
+    size_t yet = num_bytes;
+    while (yet > 0) {
+        int num_bytes_read = read(fd, ((char *)buf) + already, yet);
         if (num_bytes_read > 0) {
-            remaining -= num_bytes_read;
-            offset += num_bytes_read;
+            yet -= num_bytes_read;
+            already += num_bytes_read;
         } else {
             return -1;
         }
     }
-    return offset;
+    return already;
 }

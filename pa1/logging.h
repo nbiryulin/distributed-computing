@@ -15,7 +15,7 @@
 
 FILE * fp;
 FILE * pipe_fp;
-local_id l_id;
+
 
 
 void log_begin();
