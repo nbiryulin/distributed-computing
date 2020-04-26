@@ -6,12 +6,38 @@
 
 #include "logging.h"
 #include "helper.h"
+#include <stdarg.h>
 
-void log_begin(){
-    fp = fopen(events_log,"w");
+
+void log_msg(Message *const message, const char *format, ...) {
+    va_list args;
+    //todo if non-blocking
+
+    //todo delete if not used
+
+    va_start(args, format);
+    fprintf(events_fp, format, args);
+    va_end(args);
+
+    va_start(args, format);
+    size_t payload_length = sprintf(message->s_payload, format, format);
+    message->s_header.s_payload_len = payload_length;
+    va_end(args)
+}
+
+void log_begin() {
+    events_fp = fopen(events_log, "w");
     pipe_fp = fopen(pipes_log, "w");
 }
 
+
+void log_format(const char *format, ...){
+    va_list args;
+
+    va_start(args, format);
+    fprintf(events_fp, format, args);
+    va_end(args);
+}
 
 /**
  * Информацию обо всех открытых дескрипторах каналов (чтение / запись)
@@ -20,39 +46,40 @@ void log_begin(){
  * не забывать, что неиспользуемые дескрипторы необходимо закрыть.
  */
 
-void log_fd_r_open(int fd){
+void log_fd_r_open(int fd) {
     fprintf(pipe_fp, "fd %d opened for reading\n", fd);
 }
 
-void log_fd_w_open(int fd){
+void log_fd_w_open(int fd) {
     fprintf(pipe_fp, "fd %d opened for writing\n", fd);
 }
 
-void log_fd_closed(int fd){
+void log_fd_closed(int fd) {
     fprintf(pipe_fp, "fd %d closed\n", fd);
 }
 
-void log_done(){
-    fprintf(fp, log_done_fmt, l_id);
+void log_done() {
+    fprintf(events_fp, log_done_fmt, l_id);
 }
 
-void log_start(){
+void log_start() {
+    //todo delete???
     pid_t pid = getpid();
     pid_t ppid = getppid();
-    fprintf(fp, log_started_fmt, l_id, pid , ppid);
+    fprintf(events_fp, log_started_fmt, l_id, pid, ppid);
 }
 
-void log_recd(){
-    fprintf(fp, log_received_all_done_fmt, l_id);
+void log_recd() {
+    fprintf(events_fp, log_received_all_done_fmt, l_id);
 }
 
 
-void log_recs(){
-    fprintf(fp, log_received_all_started_fmt, l_id);
+void log_recs() {
+    fprintf(events_fp, log_received_all_started_fmt, l_id);
 }
 
-void log_end(){
-    fclose(fp);
+void log_end() {
+    fclose(events_fp);
     fclose(pipe_fp);
 }
 

@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
  */
 
 
-    if(l_id != PARENT_ID){
+ /*   if(l_id != PARENT_ID){
         log_start();
         Message message = {.s_header = {
                 .s_magic = MESSAGE_MAGIC,
@@ -107,49 +107,49 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     }
+*/ //todo sens_started
+
+//    for (int i = 1; i <= cp_count; i++) {
+//        Message message;
+//        if (i == l_id) {
+//            continue;
+//        }
+//
+//       if( receive(NULL, i, &message) == 1 ){
+//           return 1;
+//       }
+//    }
+//    log_recs(); //todo receive_start
 
 
-    for (int i = 1; i <= cp_count; i++) {
-        Message message;
-        if (i == l_id) {
-            continue;
-        }
+//    if (l_id != PARENT_ID) {
+//        log_done();
+//        Message message = {
+//                .s_header =
+//                        {
+//                                .s_magic = MESSAGE_MAGIC,
+//                                .s_type = DONE,
+//                        },
+//        };
+//        sprintf(message.s_payload, log_done_fmt, l_id);
+//        message.s_header.s_payload_len = strlen(message.s_payload);
+//        if( send_multicast(NULL, &message) == 1 ) {
+//            return 1;
+//        }
+//    }
+//todo send_done
 
-       if( receive(NULL, i, &message) == 1 ){
-           return 1;
-       }
-    }
-    log_recs();
-
-
-    if (l_id != PARENT_ID) {
-        log_done();
-        Message message = {
-                .s_header =
-                        {
-                                .s_magic = MESSAGE_MAGIC,
-                                .s_type = DONE,
-                        },
-        };
-        sprintf(message.s_payload, log_done_fmt, l_id);
-        message.s_header.s_payload_len = strlen(message.s_payload);
-        if( send_multicast(NULL, &message) == 1 ) {
-            return 1;
-        }
-    }
-
-
-    for (int i = 1; i <= cp_count; i++) {
-        Message msg;
-        if (i == l_id) {
-            continue;
-        }
-        if( receive(NULL, i, &msg) == 1 ){
-            return 1;
-        }
-    }
-    log_recd();
-
+//    for (int i = 1; i <= cp_count; i++) {
+//        Message msg;
+//        if (i == l_id) {
+//            continue;
+//        }
+//        if( receive(NULL, i, &msg) == 1 ){
+//            return 1;
+//        }
+//    }
+//    log_recd();
+//todo receuve)done
     if (l_id == PARENT_ID) {
         // Wait for the children to stop
         for (size_t i = 1; i <= (cp_count + 1); i++) {

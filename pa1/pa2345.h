@@ -11,7 +11,6 @@
 #define __IFMO_DISTRIBUTED_CLASS_PA2345__H
 
 #include "common.h"
-#include "ipc.h"
 
 /* 
  * <timestamp> process <local id> (pid <PID>, paranet <PID>) has STARTED with balance $<id>

@@ -8,15 +8,15 @@
 
 #include "common.h"
 #include <stdio.h>
-#include "pa1.h"
+#include "pa2345.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include "ipc.h"
 
-FILE * fp;
+FILE * events_fp;
 FILE * pipe_fp;
 
-
+void log_msg(Message *const message, const char *format, ...);
 
 void log_begin();
 
@@ -26,6 +26,9 @@ void log_begin();
  * ошибку: реализацию топологии «общая шина» вместо полносвязной. Кроме того, следует
  * не забывать, что неиспользуемые дескрипторы необходимо закрыть.
  */
+
+
+void log_format(const char *format, ...);
 
 void log_fd_r_open(int fd);
 
