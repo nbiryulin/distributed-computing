@@ -30,32 +30,25 @@ int run_c(p *c, balance_t balance) {
     unsigned int left = cp_count - 1;
 
     while (stop | left) {
-        printf("begin of child while %d \n", c->id);
         Message m;
         receive_any(c, &m);
         MessageType m_type = m.s_header.s_type;
         switch (m_type) {
             case STOP:
-                printf(" %d  receive stop \n", c->id);
                 stop = 0;
-                printf(" %d sending done \n", c->id);
-                send_done(c);
-                printf(" %d done sent \n", c->id);
                 break;
             case TRANSFER:
-                printf(" %d  begin transfer \n", c->id);
                 do_transfer(c, &m);
-                printf(" %d end transfer \n", c->id);
                 break;
             case DONE:
-                printf(" %d  receive done \n", c->id);
-                left--;
+                left++;
                 break;
             default:
                 fprintf(stderr, "Wrong type of message\n");
                 return 1;
         }
     }
+    send_done(c);
     log_format(log_received_all_done_fmt, get_physical_time(), c->id);
     send_balance_history(c);
     return 0;
@@ -68,10 +61,9 @@ static int do_transfer(p *c, Message *m) {
     timestamp_t time = get_physical_time();
     if (order->s_src == c->id) {
         difference -= order->s_amount;
-        send(&process_self, order->s_dst, m);
-        printf("Source %s sending type %d", &process_self.id, m->s_header.s_type);
+        send(c, order->s_dst, m);
         log_format(log_transfer_out_fmt, get_physical_time(), c->id, order->s_amount, order->s_dst);
-    } else if (order->s_dst == c->id) {
+    } else {
 //todo seems like message cannot else be there but maybe there error
         difference = order->s_amount;
         Message ack_message;
@@ -81,18 +73,13 @@ static int do_transfer(p *c, Message *m) {
                 .s_magic = MESSAGE_MAGIC,
                 .s_local_time = time
         };
-        printf(" %d  sending type %d \n", c->id, ack_message.s_header.s_type);
-        send(&process_self, PARENT_ID, &ack_message);
+        send(&c, PARENT_ID, &ack_message);
         log_format(log_transfer_in_fmt, get_physical_time(), c->id, order->s_amount, order->s_src);
-    } else {
-        fprintf(stderr, "wrong dst");
     }
 
 
     for (; time <= MAX_T; time++) {
-        printf(" %d  in for \n", c->id);
         history->s_history[time].s_balance += difference;
-        printf(" %d  end for \n", c->id);
     }
 
     if (time >= history->s_history_len) history->s_history_len = time + 1;

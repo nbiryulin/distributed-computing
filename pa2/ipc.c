@@ -4,7 +4,7 @@
 
 
 
-#include <time.h>
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -12,14 +12,10 @@
 #include "helper.h"
 #include "logging.h"
 
-
 static size_t read_by_bytes(size_t fd, void *buf, size_t num_bytes);
 
 int send(void *self, local_id dst, const Message *msg) {
     p *process = self;
-    if(dst > cp_count){
-        fprintf(stderr, "Destionation is more than count of c processes %d \n", dst);
-    }
     if (write((fd_w[process->id][dst]), &msg->s_header, sizeof(MessageHeader)) == -1) {
         fprintf(stderr, "Cannot send message\n");
         return 1;
@@ -52,17 +48,11 @@ int receive(void *self, local_id from, Message *msg) {
 
 int receive_any(void *self, Message *msg) {
     p *process = (p *) self;
-    printf(" %d begin receive any \n", process->id);
-    int from = process->id;
     while(1) {
-         from = from + 1;
-        if(from == process->id){
-            from++;
-        }
-        if (from > cp_count ) {
+        int from = process->id + 1;
+        if (from > cp_count) {
             from = from - cp_count - 1;
         }
-        printf("begin recieve any while %d from %d \n", process->id, from);
         int fd = fd_r[from][process->id];
         int flags = fcntl(fd, F_GETFL, 0);
         fcntl(fd, F_SETFL, flags | O_NONBLOCK);
@@ -74,9 +64,7 @@ int receive_any(void *self, Message *msg) {
                 // case -1 means pipe is empty and errono
                 // set EAGAIN
                 if (errno == EAGAIN) {
-         //           sleep(1);
-                  //  usleep( 100000 );
-
+                    sleep(1);
                     continue;
                 } else {
                     perror("read");
@@ -84,8 +72,7 @@ int receive_any(void *self, Message *msg) {
 
                 // case 0 means all bytes are read and EOF(end of conv.)
             case 0:
-     //           sleep(1);
-            //    usleep( 100000 );
+                sleep(1);
                 continue;
             default:
                 // text read
@@ -93,12 +80,11 @@ int receive_any(void *self, Message *msg) {
                 // which read call read at that time
                 break;
         }
-        printf(" %d reading any  \n", process->id);
+
         fcntl(fd, F_SETFL, flags & !O_NONBLOCK);
         read(fd, ((char *) &msg->s_header) + 1, sizeof(MessageHeader) - 1);
         read(fd, msg->s_payload, msg->s_header.s_payload_len);
         fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-        printf(" %d end receive any \n", process->id);
         return 0;
     }
 }

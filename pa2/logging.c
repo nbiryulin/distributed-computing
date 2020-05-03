@@ -12,35 +12,27 @@
 void log_msg(Message *const message, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    vfprintf(events_fp, format, args);
+    fprintf(events_fp, format, args);
     va_end(args);
     va_start(args, format);
-    size_t payload_length = sprintf(message->s_payload, format, args);
+    size_t payload_length = sprintf(message->s_payload, format, format);
     message->s_header.s_payload_len = payload_length;
-    va_end(args);
-    va_start(args, format);
-    vprintf(format, args);
     va_end(args);
 }
 
 void log_begin() {
-    print("Begin of opening file\n");
     events_fp = fopen(events_log, "w");
     pipe_fp = fopen(pipes_log, "w");
-    print("End of opening file \n");
 }
 
 
 void log_format(const char *format, ...){
     va_list args;
+
     va_start(args, format);
-    vfprintf(events_fp, format, args);
-    va_end(args);
-    va_start(args, format);
-    vprintf(format, args);
+    fprintf(events_fp, format, args);
     va_end(args);
 }
-
 
 /**
  * Информацию обо всех открытых дескрипторах каналов (чтение / запись)

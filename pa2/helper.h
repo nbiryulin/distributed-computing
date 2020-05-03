@@ -5,7 +5,6 @@
 #ifndef PA1_STARTER_CODE_HELPER_H
 #define PA1_STARTER_CODE_HELPER_H
 
-#include <sys/types.h>
 #include "ipc.h"
 #include "banking.h"
 
@@ -14,7 +13,6 @@
 int fd_r[MAX_PROCESS][MAX_PROCESS];
 int fd_w[MAX_PROCESS][MAX_PROCESS];
 int cp_count;
-pid_t pids[MAX_PROCESS];
 
 
 typedef struct {
