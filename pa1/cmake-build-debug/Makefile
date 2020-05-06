@@ -150,6 +150,33 @@ bank_robbery.c.s:
 	$(MAKE) -f CMakeFiles/peer.dir/build.make CMakeFiles/peer.dir/bank_robbery.c.s
 .PHONY : bank_robbery.c.s
 
+banking.o: banking.c.o
+
+.PHONY : banking.o
+
+# target to build an object file
+banking.c.o:
+	$(MAKE) -f CMakeFiles/peer.dir/build.make CMakeFiles/peer.dir/banking.c.o
+.PHONY : banking.c.o
+
+banking.i: banking.c.i
+
+.PHONY : banking.i
+
+# target to preprocess a source file
+banking.c.i:
+	$(MAKE) -f CMakeFiles/peer.dir/build.make CMakeFiles/peer.dir/banking.c.i
+.PHONY : banking.c.i
+
+banking.s: banking.c.s
+
+.PHONY : banking.s
+
+# target to generate assembly for a file
+banking.c.s:
+	$(MAKE) -f CMakeFiles/peer.dir/build.make CMakeFiles/peer.dir/banking.c.s
+.PHONY : banking.c.s
+
 c.o: c.c.o
 
 .PHONY : c.o
@@ -324,6 +351,9 @@ help:
 	@echo "... bank_robbery.o"
 	@echo "... bank_robbery.i"
 	@echo "... bank_robbery.s"
+	@echo "... banking.o"
+	@echo "... banking.i"
+	@echo "... banking.s"
 	@echo "... c.o"
 	@echo "... c.i"
 	@echo "... c.s"

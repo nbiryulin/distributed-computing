@@ -89,6 +89,9 @@
 		<Unit filename="/home/maxifier/Рабочий стол/pa1_starter_code/pa1/bank_robbery.c">
 			<Option target="peer"/>
 		</Unit>
+		<Unit filename="/home/maxifier/Рабочий стол/pa1_starter_code/pa1/banking.c">
+			<Option target="peer"/>
+		</Unit>
 		<Unit filename="/home/maxifier/Рабочий стол/pa1_starter_code/pa1/banking.h">
 			<Option target="peer"/>
 		</Unit>

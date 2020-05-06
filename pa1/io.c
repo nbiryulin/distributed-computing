@@ -14,12 +14,15 @@
 
 
 int send_started(p *process) {
+    process->l_time++;
     Message message = {.s_header = {
             .s_magic = MESSAGE_MAGIC,
             .s_type = STARTED,
+            .s_local_time = get_lamport_time(),
+            .s_payload_len = 0,
     },
     };
-    log_msg(&message, log_started_fmt, get_physical_time(), process->id, getpid(), getppid(), balances[process->id]);
+    log_msg(&message, log_started_fmt, get_lamport_time(), process->id, getpid(), getppid(), balances[process->id]);
     message.s_header.s_payload_len = strlen(message.s_payload);
     //todo maybe e there
     return send_multicast(process, &message);
@@ -35,19 +38,22 @@ int receive_started(p *process) {
         if (receive(process, i, &message) == 1) {
             return 1;
         }
+        increase_l_time(process, message.s_header.s_local_time);
     }
-    timestamp_t time = get_physical_time();
-    log_format(log_received_all_started_fmt, time, process->id);
+    log_format(log_received_all_started_fmt, get_lamport_time(), process->id);
     return 0;
 }
 
 int send_done(p *process) {
+    process->l_time++;
+    timestamp_t time = get_lamport_time();
     Message message = {.s_header = {
             .s_magic = MESSAGE_MAGIC,
             .s_type = DONE,
+            .s_local_time = time,
+            .s_payload_len = 0,
     },
     };
-    timestamp_t time = get_physical_time();
     log_msg(&message, log_done_fmt, time, process->id, process->history.s_history[time].s_balance);
     message.s_header.s_payload_len = strlen(message.s_payload);
     //todo maybe e there
@@ -63,20 +69,21 @@ int receive_done(p *process) {
         if (receive(process, i, &message) == 1) {
             return 1;
         }
+        increase_l_time(process, message.s_header.s_local_time);
     }
-    timestamp_t time = get_physical_time();
-    log_format(log_received_all_done_fmt, time, process->id);
+    log_format(log_received_all_done_fmt, get_lamport_time(), process->id);
     return 0;
 }
 
 int send_stop(p *process) {
+    process->l_time++;
     Message message = {
             .s_header =
                     {
                             .s_magic = MESSAGE_MAGIC,
                             .s_type = STOP,
                             .s_payload_len = 0,
-                            .s_local_time = get_physical_time(),
+                            .s_local_time = get_lamport_time(),
                     },
     };
     //todo maybe e therre
@@ -84,7 +91,8 @@ int send_stop(p *process) {
 }
 
 int send_balance_history(p *process) {
-    process->history.s_history_len = get_physical_time() + 1;
+    process->l_time++;
+    process->history.s_history_len = get_lamport_time() + 1;
     size_t size_of_history = sizeof(local_id) +
                              sizeof(uint8_t) +
                              process->history.s_history_len * sizeof(BalanceState);
@@ -93,7 +101,7 @@ int send_balance_history(p *process) {
             .s_header = {
                     .s_magic = MESSAGE_MAGIC,
                     .s_type = BALANCE_HISTORY,
-                    .s_local_time = get_physical_time(),
+                    .s_local_time = get_lamport_time(),
                     .s_payload_len = size_of_history,
             }
     };
@@ -109,6 +117,7 @@ int receive_balance_history(p *process) {
         //todo maybe e therre
         receive(process, c_id, &message);
         process->all_history.s_history[c_id - 1] = *(BalanceHistory *) &message.s_payload;
+        increase_l_time(process, message.s_header.s_local_time);
     }
     return 0;
 }

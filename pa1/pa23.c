@@ -15,9 +15,11 @@
 
 void transfer(void *parent_data, local_id src, local_id dst, balance_t amount) {
     printf("%d transfer to %d", src, dst);
+    p *process = parent_data;
+    process->l_time++;
     Message msg;
     msg.s_header = (MessageHeader) {
-            .s_local_time = get_physical_time(),
+            .s_local_time = get_lamport_time(),
             .s_magic = MESSAGE_MAGIC,
             .s_payload_len = sizeof(TransferOrder),
             .s_type = TRANSFER
@@ -33,6 +35,8 @@ void transfer(void *parent_data, local_id src, local_id dst, balance_t amount) {
     receive(parent_data, dst, &msg);
     if (msg.s_header.s_type != ACK) {
         fprintf(stderr, "Not ACK type %d \n", msg.s_header.s_type);
+    } else {
+        increase_l_time(process, msg.s_header.s_local_time);
     }
     printf("%d transfer end %d", src, dst);
 }
@@ -81,6 +85,7 @@ int main(int argc, char *argv[]) {
 
     pids[PARENT_ID] = getpid();
     p *process = &process_self;
+    process->l_time = 0;
 
     for (int i = 1; i <= cp_count; i++) {
         int cp_id = fork();
@@ -98,7 +103,7 @@ int main(int argc, char *argv[]) {
 
     for (int in = 0; in <= cp_count; in++) {
         for (int out = 0; out <= cp_count; out++) {
-            print("closing");
+            printf("closing\n");
             if (out != process->id) {
                 //maybe there error
                 log_fd_closed(fd_r[in][out]);
@@ -113,11 +118,11 @@ int main(int argc, char *argv[]) {
 
     if (process->id == PARENT_ID) {
         run_k(process);
-        print("end k run");
+        printf("end k run");
 
     } else {
         run_c(process, balances[process->id]);
-        print("end c run");
+        printf("end c run");
     }
 
 //todo maybe e there

@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
   "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/bank_robbery.c" "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/cmake-build-debug/CMakeFiles/peer.dir/bank_robbery.c.o"
+  "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/banking.c" "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/cmake-build-debug/CMakeFiles/peer.dir/banking.c.o"
   "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/c.c" "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/cmake-build-debug/CMakeFiles/peer.dir/c.c.o"
   "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/io.c" "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/cmake-build-debug/CMakeFiles/peer.dir/io.c.o"
   "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/ipc.c" "/home/maxifier/Рабочий стол/pa1_starter_code/pa1/cmake-build-debug/CMakeFiles/peer.dir/ipc.c.o"

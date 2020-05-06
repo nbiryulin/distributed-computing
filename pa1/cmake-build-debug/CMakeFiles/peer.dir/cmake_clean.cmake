@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/peer.dir/bank_robbery.c.o"
+  "CMakeFiles/peer.dir/banking.c.o"
   "CMakeFiles/peer.dir/c.c.o"
   "CMakeFiles/peer.dir/io.c.o"
   "CMakeFiles/peer.dir/ipc.c.o"

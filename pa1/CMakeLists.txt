@@ -20,4 +20,5 @@ add_executable(peer
         pa2345.h
         io.c
         io.h
+        banking.c
         )

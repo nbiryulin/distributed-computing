@@ -21,8 +21,10 @@ typedef struct {
     local_id id;
     BalanceHistory history;
     AllHistory all_history;
+    timestamp_t l_time;
 } p;
 
+int increase_l_time(p *process, timestamp_t time);
 
 balance_t balances[MAX_PROCESS];
 p process_self;

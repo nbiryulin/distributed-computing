@@ -24,10 +24,10 @@ void log_msg(Message *const message, const char *format, ...) {
 }
 
 void log_begin() {
-    print("Begin of opening file\n");
+    printf("Begin of opening file\n");
     events_fp = fopen(events_log, "w");
     pipe_fp = fopen(pipes_log, "w");
-    print("End of opening file \n");
+    printf("End of opening file \n");
 }
 
 
