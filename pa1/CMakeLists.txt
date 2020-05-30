@@ -21,4 +21,5 @@ add_executable(peer
         io.c
         io.h
         banking.c
+        lamport.c
         )

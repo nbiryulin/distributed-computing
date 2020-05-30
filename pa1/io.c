@@ -38,6 +38,12 @@ int receive_started(p *process) {
         if (receive(process, i, &message) == 1) {
             return 1;
         }
+        if(process->id == 0){
+           // printf("get %s from  %d time\n", msg_type_to_string(message.s_header.s_type), i);
+        }
+        if(message.s_header.s_type != STARTED){
+            printf("expected started for p %d get %hd\n",  process->id, message.s_header.s_type);
+        }
         increase_l_time(process, message.s_header.s_local_time);
     }
     log_format(log_received_all_started_fmt, get_lamport_time(), process->id);
@@ -68,6 +74,13 @@ int receive_done(p *process) {
         Message message;
         if (receive(process, i, &message) == 1) {
             return 1;
+        }
+        if(message.s_header.s_type != DONE){
+         //   printf("expected done for p %d get %s \n",  process->id, msg_type_to_string(message.s_header.s_type));
+            i--;
+        }
+        if(message.s_header.s_type == STARTED){
+    //        printf("expected done get started \n");
         }
         increase_l_time(process, message.s_header.s_local_time);
     }

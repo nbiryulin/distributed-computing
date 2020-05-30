@@ -7,6 +7,6 @@
 
 #include "helper.h"
 
-int run_c(p *c, balance_t balance);
+int run_c(p *c);
 
 #endif //PA1_STARTER_CODE_C_H

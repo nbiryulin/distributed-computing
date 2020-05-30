@@ -18,16 +18,16 @@ void log_msg(Message *const message, const char *format, ...) {
     size_t payload_length = sprintf(message->s_payload, format, args);
     message->s_header.s_payload_len = payload_length;
     va_end(args);
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
+//    va_start(args, format);
+//    vprintf(format, args);
+//    va_end(args);
 }
 
 void log_begin() {
-    printf("Begin of opening file\n");
+    //printf("Begin of opening file\n");
     events_fp = fopen(events_log, "w");
     pipe_fp = fopen(pipes_log, "w");
-    printf("End of opening file \n");
+  //  printf("End of opening file \n");
 }
 
 

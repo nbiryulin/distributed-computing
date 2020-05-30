@@ -17,16 +17,48 @@ int cp_count;
 pid_t pids[MAX_PROCESS];
 
 
+
+
+
+int mutexl;
+
+//const int multiply = 5;
+
+typedef struct  {
+    local_id  id;
+    timestamp_t time;
+} element;
+
+typedef struct {
+    element elements[MAX_PROCESS];
+    int size;
+} queue;
+
 typedef struct {
     local_id id;
     BalanceHistory history;
-    AllHistory all_history;
+     AllHistory all_history;
     timestamp_t l_time;
+    queue l_queue;
+    int done;
 } p;
 
 int increase_l_time(p *process, timestamp_t time);
 
 balance_t balances[MAX_PROCESS];
 p process_self;
+
+void queue_put(queue *self, element element);
+
+void queue_pop(queue *self);
+
+element queue_peek(queue *self);
+
+int get_first(queue *q);
+
+int send_multicast_child(void *self, const Message *msg);
+
+
+
 
 #endif //PA1_STARTER_CODE_HELPER_H

@@ -11,15 +11,35 @@
 #include "ipc.h"
 #include "helper.h"
 #include "logging.h"
-
+#include "io.h"
 
 static size_t read_by_bytes(size_t fd, void *buf, size_t num_bytes, int try);
+
+
+
+int send_multicast_child(void *self, const Message *msg){
+    p *process = self;
+    //todo maybe not to inc
+    process->l_time++;
+    for (int d = 1; d < (cp_count + 1); d++) {
+        if (d != process->id) {
+            if (send(self, d, msg) > 0) {
+                return 1;
+            }
+        }
+        if(process->id == 3){
+            printf("process %d send to %d \n", process->id, d);
+        }
+    }
+    return 0;
+}
 
 int send(void *self, local_id dst, const Message *msg) {
     p *process = self;
     process->l_time++;
+    printf("sende from %d to %d type %hd \n", process->id, dst , msg->s_header.s_type);
     if (dst > cp_count) {
-        fprintf(stderr, "Destionation is more than count of c processes %d \n", dst);
+        //fprintf(stderr, "Destionation is more than count of c processes %d \n", dst);
     }
     if (write((fd_w[process->id][dst]), &msg->s_header, sizeof(MessageHeader)) == -1) {
         fprintf(stderr, "Cannot send message\n");
@@ -52,7 +72,7 @@ int receive(void *self, local_id from, Message *msg) {
 
 int receive_any(void *self, Message *msg) {
     p *process = (p *) self;
-    printf(" %d begin receive any \n", process->id);
+   // printf(" %d begin receive any \n", process->id);
     int from = process->id;
     while (1) {
         from = from + 1;
@@ -88,8 +108,14 @@ int receive_any(void *self, Message *msg) {
                 // text read
                 // by default return no. of bytes
                 // which read call read at that time
+                if(process->id ==1) {
+                    printf("going to read  \n");
+                }
                 read_by_bytes(fd, msg->s_payload, msg->s_header.s_payload_len, 0);
-                return 0;
+                if(process->id ==1) {
+                    printf("end of receive any \n");
+                }
+                return from;
         }
     }
 }
